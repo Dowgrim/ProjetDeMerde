@@ -1,34 +1,40 @@
 #include <assert.h>
-
+#include "cache_list.h"
 #include "strategy.h"
 #include "low_cache.h"
 #include "time.h"
 
 void *Strategy_Create(struct Cache *pcache) 
 {
-    // srand((unsigned int)time(NULL));
-    return NULL;
+    struct Cache_List *list = Cache_List_Create();
+    pcache->pstrategy = list;
+    return list;
 }
 
 void Strategy_Close(struct Cache *pcache)
 {
+	Cache_List_Delete(pcache->pstrategy);
 }
 
 void Strategy_Invalidate(struct Cache *pcache)
 {
+	Cache_List_Clear(pcache->pstrategy);
 }
 
 struct Cache_Block_Header *Strategy_Replace_Block(struct Cache *pcache) 
 {
-    int ib;
     struct Cache_Block_Header *pbh;
 
     /* On cherche d'abord un bloc invalide */
-    if ((pbh = Get_Free_Block(pcache)) != NULL) return pbh;
+    if ((pbh = Get_Free_Block(pcache)) != NULL){
+    	Cache_List_Append(pcache->pstrategy,pbh);
+    	return pbh;
+    }
 
     /* Sinon on tire un numéro de bloc au hasard */
-    ib = RANDOM(0, pcache->nblocks);
-    return &pcache->headers[ib];
+    pbh = Cache_List_Remove_First(pcache->pstrategy);
+    	Cache_List_Append(pcache->pstrategy,pbh);
+    return pbh;
 }
 
 
