@@ -2,7 +2,14 @@
 
 struct Cache *Cache_Create(const char *fic, unsigned nblocks, unsigned nrecords,
                            size_t recordsz, unsigned nderef) {
-
+	struct Cache* pcache; 
+	pcache->file = fic; 
+	pcache->fp = fopen(fic, O_RDWR|O_CREAT|O_APPEND); 
+	pcache->nblocks = nblocks; 
+	pcache->nrecordsz = nrecordsz; 
+	pcache->blocksz = ???; 
+	pcache->nderef = nderef; 
+	struct Cache_Instrument cache_instrument = {0, 0, 0, 0, 0};
 }
 
 //! Fermeture (destruction) du cache.
@@ -18,7 +25,10 @@ Cache_Error Cache_Sync(struct Cache *pcache) {
 
 //! Invalidation du cache.
 Cache_Error Cache_Invalidate(struct Cache *pcache) {
-
+	int i=0, j=pcache->nblocks;
+	for(i = 0; i < j; i++) {
+		pcache->headers[i].
+	}
 }
 
 //! Lecture  (à travers le cache).
