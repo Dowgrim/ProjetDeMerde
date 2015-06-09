@@ -7,7 +7,8 @@ struct Cache *Cache_Create(const char *fic, unsigned nblocks, unsigned nrecords,
 
 //! Fermeture (destruction) du cache.
 Cache_Error Cache_Close(struct Cache *pcache) {
-
+	close(pcache->fp);
+	free(pcache);
 }
 
 //! Synchronisation du cache.
@@ -32,5 +33,5 @@ Cache_Error Cache_Write(struct Cache *pcache, int irfile, const void *precord) {
 
 //! Résultat de l'instrumentation.
 struct Cache_Instrument *Cache_Get_Instrument(struct Cache *pcache) {
-	
+
 }
