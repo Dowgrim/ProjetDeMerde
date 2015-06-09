@@ -27,7 +27,7 @@ Cache_Error Cache_Sync(struct Cache *pcache) {
 Cache_Error Cache_Invalidate(struct Cache *pcache) {
 	int i=0, j=pcache->nblocks;
 	for(i = 0; i < j; i++) {
-		pcache->headers[i].
+		pcache->headers[i].flags = 0;
 	}
 }
 
