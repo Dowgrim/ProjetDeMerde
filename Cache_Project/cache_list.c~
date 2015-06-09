@@ -1,0 +1,7 @@
+#include "double_list.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Cache_List *Cache_List_Create(){
+	
+}
