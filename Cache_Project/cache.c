@@ -43,12 +43,14 @@ Cache_Error Cache_Invalidate(struct Cache *pcache) {
 
 //! Lecture  (à travers le cache).
 Cache_Error Cache_Read(struct Cache *pcache, int irfile, void *precord) {
-
+	//fread(&irfile-recordsz, pcache->precordsz, pcache->nrecordsz, pcache->fp);
+	//pcache->ibfile = irfile;
 }
 
 //! Écriture (à travers le cache).
 Cache_Error Cache_Write(struct Cache *pcache, int irfile, const void *precord) {
-	fwrite(&irfile-recordsz, pcache->recordsz, pcache->nrecordsz, pcache->fp);
+	//fwrite(&irfile-recordsz, pcache->recordsz, pcache->nrecordsz, pcache->fp);
+	//pcache->headers[?]	=> Mettre à jour flag modifié à 0 ?
 }
 
 //! Résultat de l'instrumentation.
