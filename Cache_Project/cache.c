@@ -43,8 +43,8 @@ Cache_Error Cache_Invalidate(struct Cache *pcache) {
 
 //! Lecture  (à travers le cache).
 Cache_Error Cache_Read(struct Cache *pcache, int irfile, void *precord) {
-	//fread(&irfile-recordsz, pcache->precordsz, pcache->nrecordsz, pcache->fp);
-	//pcache->ibfile = irfile;
+	//fread(&pcache->data, pcache->recordsz, pcache->nrecordsz, pcache->fp);
+	//pcache->ibfile = irfile;	
 }
 
 //! Écriture (à travers le cache).
