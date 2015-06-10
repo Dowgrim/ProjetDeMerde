@@ -56,11 +56,10 @@ Cache_Error Cache_Write(struct Cache *pcache, int irfile, const void *precord) {
 //! Résultat de l'instrumentation.
 struct Cache_Instrument *Cache_Get_Instrument(struct Cache *pcache) {
 	struct *Cache_Instrument copie;
-	copie->n_reads = pcache->instrument->n_reads;
-	copie->n_writes = pcache->instrument->n_writes;
-	copie->n_hits = pcache->instrument->n_hits;
-	copie->n_syncs = pcache->instrument->n_syncs;
-	copie->n_deref = pcache->instrument->n_deref;
-	pcache->instrument = {0, 0, 0, 0, 0};
+	pcache->instrument->n_reads = pcache->instrument->n_reads;
+	pcache->instrument->n_writes = pcache->instrument->n_writes;
+	pcache->instrument->n_hits = pcache->instrument->n_hits;
+	pcache->instrument->n_syncs = pcache->instrument->n_syncs;
+	pcache->instrument->n_deref = pcache->instrument->n_deref;
 	return copie;
 }
