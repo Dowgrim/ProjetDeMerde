@@ -7,7 +7,8 @@ TODO LIST :
 - Cache_Sync dans cache.c, ajouter l'écriture dans le fichier
 - Cache.c fonction read
 - Cache.c fonction write
-- low_cache.c à faire
+- Commenter ce qu'on a fait pour permettre aux autres de comprendre
+- Fonctions de cache.c sont censées renvoyer Cache_Error... Que mettre ?
 - Retirer l'utilisation de la librairie fournie
 - Analyse des résultats
 - Etendre l'instrumentation du cache ? Ajouter des tests ?
