@@ -26,8 +26,8 @@ struct Cache_Block_Header *Strategy_Replace_Block(struct Cache *pcache)
     /* On cherche d'abord un bloc invalide */
     if ((pbh = Get_Free_Block(pcache)) != NULL)
         return pbh;
-    // initialisation du min
-    min = &pcache->headers[0];
+    // initialisation du min à la valeur max du flag
+    min = 3;
     for (ib = 0; ib < length(pcache->headers); ib++) {
         pbh = &pcache->headers[ib];
         // si le flag est nul, on a trouvé le bon bloc
