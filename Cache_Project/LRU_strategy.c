@@ -1,5 +1,4 @@
 #include <assert.h>
-
 #include "strategy.h"
 #include "low_cache.h"
 #include "time.h"
