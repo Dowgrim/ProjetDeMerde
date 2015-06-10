@@ -40,12 +40,12 @@ struct Cache_Block_Header *Strategy_Replace_Block(struct Cache *pcache)
 
 void Strategy_Read(struct Cache *pcache, struct Cache_Block_Header *pbh) 
 {
-	Cache_List_Append(pcache->pstrategy,pbh);
+	Cache_List_Move_To_End(pcache->pstrategy,pbh);
 }  
 
 void Strategy_Write(struct Cache *pcache, struct Cache_Block_Header *pbh)
 {
-	Cache_List_Append(pcache->pstrategy,pbh);
+	Cache_List_Move_To_End(pcache->pstrategy,pbh);
 } 
 
 char *Strategy_Name()
