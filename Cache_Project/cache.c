@@ -21,7 +21,16 @@ Cache_Error Cache_Close(struct Cache *pcache) {
 
 //! Synchronisation du cache.
 Cache_Error Cache_Sync(struct Cache *pcache) {
+	int i=0, j=pcache->nblocks;
+	for(i = 0; i < j; i++) {
+		unsigned int f = pcache->headers[i].flags;
+		if(f >= 2) {
+			// Le flag M est modifié, alors on écrit dans le fichier les modif
 
+			// Puis on met le flag M à 0
+			f &= ~(1 << 2);
+		}
+	}
 }
 
 //! Invalidation du cache.
