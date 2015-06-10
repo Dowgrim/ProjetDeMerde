@@ -22,13 +22,14 @@ struct Cache_Block_Header *Strategy_Replace_Block(struct Cache *pcache)
 {
     int ib, min;
     struct Cache_Block_Header *pbh;
+    struct Cache_Block_Header *pbh_min = NULL;
 
     /* On cherche d'abord un bloc invalide */
     if ((pbh = Get_Free_Block(pcache)) != NULL)
         return pbh;
     // initialisation du min à la valeur max du flag
-    min = 3;
-    for (ib = 0; ib < length(pcache->headers); ib++) {
+    min = 4;
+    for (ib = 0; ib < pcache->nblocks; ib++) {
         pbh = &pcache->headers[ib];
         // si le flag est nul, on a trouvé le bon bloc
         if (pbh->flags == 0) {
@@ -37,12 +38,12 @@ struct Cache_Block_Header *Strategy_Replace_Block(struct Cache *pcache)
         // sinon on cherche la valeur du flag minimale
         else if (pbh->flags < min) {
             min = pbh->flags;
-            return pbh;
+            pbh_min = pbh;
         }
         
     }
 
-    return &pcache->headers[ib];
+    return pbh_min;
 }
 
 
