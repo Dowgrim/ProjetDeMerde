@@ -26,7 +26,7 @@ Cache_Error Cache_Sync(struct Cache *pcache) {
 		unsigned int f = pcache->headers[i].flags;
 		if(f >= 2) {
 			// Le flag M est modifié, alors on écrit dans le fichier les modif
-
+			fwrite(&pcache->headers[i]-recordsz, pcache->recordsz, pcache->nrecordsz, pcache->fp);
 			// Puis on met le flag M à 0
 			f &= ~(1 << 2);
 		}
