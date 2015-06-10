@@ -14,6 +14,7 @@ struct Cache *Cache_Create(const char *fic, unsigned nblocks, unsigned nrecords,
 
 //! Fermeture (destruction) du cache.
 Cache_Error Cache_Close(struct Cache *pcache) {
+	Cache_Sync(pcache);
 	close(pcache->fp);
 	free(pcache);
 }
