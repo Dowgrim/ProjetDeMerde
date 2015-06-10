@@ -5,11 +5,15 @@ struct Cache *Cache_Create(const char *fic, unsigned nblocks, unsigned nrecords,
 	struct Cache* pcache; 
 	pcache->file = fic; 
 	pcache->fp = fopen(fic, O_RDWR|O_CREAT|O_APPEND); 
-	pcache->nblocks = nblocks; 
+	pcache->nblocks = nblocks;
 	pcache->nrecordsz = nrecordsz; 
 	pcache->blocksz = nrecords*recordsz; 
 	pcache->nderef = nderef; 
 	struct Cache_Instrument cache_instrument = {0, 0, 0, 0, 0};
+	struct Cache_Block_Header cache_header = malloc(sizeof(unsigned)*(nrecords));
+	pcache->instrument cache_instrument;
+	pcache->headers = cache_header;
+	pcache->pfree = cache_header;
 }
 
 //! Fermeture (destruction) du cache.
