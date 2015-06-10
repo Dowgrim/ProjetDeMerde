@@ -26,7 +26,7 @@ Cache_Error Cache_Sync(struct Cache *pcache) {
 		unsigned int f = pcache->headers[i].flags;
 		if(f >= 2) {
 			// Le flag M est modifié, alors on écrit dans le fichier les modif
-			fwrite(&pcache->headers[i]-recordsz, pcache->recordsz, pcache->nrecordsz, pcache->fp);
+			fwrite(*pcache->headers[i]->ibfile-recordsz, pcache->recordsz, pcache->nrecordsz, pcache->fp);
 			// Puis on met le flag M à 0
 			f &= ~(1 << 2);
 		}
@@ -48,7 +48,7 @@ Cache_Error Cache_Read(struct Cache *pcache, int irfile, void *precord) {
 
 //! Écriture (à travers le cache).
 Cache_Error Cache_Write(struct Cache *pcache, int irfile, const void *precord) {
-
+	fwrite(&irfile-recordsz, pcache->recordsz, pcache->nrecordsz, pcache->fp);
 }
 
 //! Résultat de l'instrumentation.
