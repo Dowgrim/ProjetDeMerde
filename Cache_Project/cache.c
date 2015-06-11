@@ -2,18 +2,25 @@
 
 struct Cache *Cache_Create(const char *fic, unsigned nblocks, unsigned nrecords,
                            size_t recordsz, unsigned nderef) {
-	struct Cache* pcache; 
+	struct Cache* pcache = malloc(sizeof(struct Cache)); 
 	pcache->file = fic; 
-	pcache->fp = fopen(fic, O_RDWR|O_CREAT|O_APPEND); 
+	pcache->fp = fopen(fic, O_RDWR|O_CREAT|O_TRUNC); 
 	pcache->nblocks = nblocks;
 	pcache->nrecordsz = nrecordsz; 
 	pcache->blocksz = nrecords*recordsz; 
 	pcache->nderef = nderef; 
+	pcache->pstrategy = Strategy_Create(pcache);
 	struct Cache_Instrument cache_instrument = {0, 0, 0, 0, 0};
-	struct Cache_Block_Header cache_header = malloc(sizeof(unsigned)*(nrecords));
+	struct *Cache_Block_Header headers = malloc(sizeof(struct Cache_Block_Header)*(nrecords));
 	pcache->instrument cache_instrument;
 	pcache->headers = cache_header;
 	pcache->pfree = cache_header;
+	int i;
+	for(i = 0; i < nblocks; i++) {
+		headers[i].data = malloc(recordsz*nrecords);
+		headers[i].ibcache = i;
+		headers[i].flags = 0;
+	}
 }
 
 //! Fermeture (destruction) du cache.
@@ -25,16 +32,24 @@ Cache_Error Cache_Close(struct Cache *pcache) {
 
 //! Synchronisation du cache.
 Cache_Error Cache_Sync(struct Cache *pcache) {
+	// On va parcourir tous les blocs du cache
 	int i=0, j=pcache->nblocks;
 	for(i = 0; i < j; i++) {
 		unsigned int f = pcache->headers[i].flags;
-		if(f >= 2) {
+		if(f & MODIF) {
 			// Le flag M est modifié, alors on écrit dans le fichier les modif
-			fwrite(*pcache->headers[i]->ibfile-recordsz, pcache->recordsz, pcache->nrecordsz, pcache->fp);
+			// On commence par mettre le curseur dans le fichier à la position ibfile
+			if(fseek(pcache->fp, pcache->headers[i].ibfile * pcache->blocksz, SEEK_SET))
+				return CACHE_KO;
+			// On peut ensuite écrire dans le fichier à la position définie ci-dessus
+			if(fputs(pcache->headers[i].data, pcache->fp)==EOF)
+				return CACHE_KO;
 			// Puis on met le flag M à 0
-			f &= ~(1 << 2);
+			f &= ~MODIF;
 		}
 	}
+	// La fonction n'a pas généré d'erreur
+	return CACHE_OK;
 }
 
 //! Invalidation du cache.
