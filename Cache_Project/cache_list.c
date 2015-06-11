@@ -1,7 +1,6 @@
 #include "cache_list.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <assert.h>
 
 
@@ -41,6 +40,7 @@ void Cache_List_Append(struct Cache_List *list, struct Cache_Block_Header *pbh){
 
 void Cache_List_Prepend(struct Cache_List *list, struct Cache_Block_Header *pbh){
 
+	struct Cache_List *pnew = malloc(sizeof(struct Cache_List));
 	Cache_List_Append(list, pbh);
 	list = pnew;
 }
@@ -58,7 +58,7 @@ struct Cache_Block_Header *Cache_List_Remove_First(struct Cache_List *list){
 
 struct Cache_Block_Header *Cache_List_Remove_Last(struct Cache_List *list){
 
-	struct Cache_Block_Header *pcurr = NULL;
+	struct Cache_Block_Header *hpcurr = NULL;
     
 	if(!Cache_List_Is_Empty(list)){
 		hpcurr = Cache_List_Remove(list, list->prev->pheader);
@@ -110,9 +110,12 @@ void Cache_List_Move_To_Begin(struct Cache_List *list,struct Cache_Block_Header 
 	Cache_List_Prepend(list, Cache_List_Remove(list, pbh));
 }
 
-
-int main()
-{
+int main(){
 	
+	struct Cache_List *d0=Cache_List_Create();
+	Cache_List_Delete(d0);
+	struct Cache_List *d1=Cache_List_Create();
+	struct Cache_Block_Header *b1={1,2,3};
+	Cache_List_Append(d1,b1);
 	return 0;
 }
