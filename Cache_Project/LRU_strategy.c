@@ -21,7 +21,7 @@ void Strategy_Invalidate(struct Cache *pcache)
 
 struct Cache_Block_Header *Strategy_Replace_Block(struct Cache *pcache) 
 {
-    Cache_Block_Header *pbh;
+    struct Cache_Block_Header *pbh;
 
     if ((pbh = Get_Free_Block(pcache)) != NULL){
     	Cache_List_Append(pcache->pstrategy,pbh);
