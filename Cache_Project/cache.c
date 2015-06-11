@@ -71,6 +71,53 @@ Cache_Error Cache_Invalidate(struct Cache *pcache) {
 
 //! Lecture  (à travers le cache).
 Cache_Error Cache_Read(struct Cache *pcache, int irfile, void *precord) {
+	if(Cache_Access(pcache, irfile, precord, 0)==CACHE_KO)
+		return CACHE_KO;
+	// On synchronise si besoin
+	pcache->instrument.n_reads++;
+	if(pcache->instrument.n_reads+pcache->instrument.n_writes % NSYNC == 0)
+		Cache_Sync(pcache);
+	Strategy_Read(pcache);
+	return CACHE_OK;
+}
+
+//! Écriture (à travers le cache).
+Cache_Error Cache_Write(struct Cache *pcache, int irfile, const void *precord) {
+	if(Cache_Access(pcache, irfile, precord, 1)==CACHE_KO)
+		return CACHE_KO;
+	// On synchronise si besoin
+	pcache->instrument.n_writes++;
+	if(pcache->instrument.n_reads+pcache->instrument.n_writes % NSYNC == 0)
+		Cache_Sync(pcache);
+	Strategy_Write(pcache);
+	return CACHE_OK;
+}
+
+//! Résultat de l'instrumentation.
+struct Cache_Instrument *Cache_Get_Instrument(struct Cache *pcache) {
+	struct *Cache_Instrument copie = malloc(sizeof(struct Cache_Instrument));
+	copie->n_reads = pcache->instrument->n_reads;
+	copie->n_writes = pcache->instrument->n_writes;
+	copie->n_hits = pcache->instrument->n_hits;
+	copie->n_syncs = pcache->instrument->n_syncs;
+	copie->n_deref = pcache->instrument->n_deref;
+	pcache->instrument = {0, 0, 0, 0, 0};
+	return copie;
+}
+
+//! Remplacement de contenu dans le fichier
+Cache_Error Cache_Replace_In_File(struct Cache *pcache, struct Cache_Block_Header block) {
+	// On commence par mettre le curseur dans le fichier à la position ibfile
+	if(fseek(pcache->fp, pcache->headers[i].ibfile * pcache->blocksz, SEEK_SET))
+		return CACHE_KO;
+	// On peut ensuite écrire dans le fichier à la position définie ci-dessus
+	if(fputs(block.data, pcache->fp)==EOF)
+		return CACHE_KO;
+	return CACHE_OK;
+}
+
+//! Accès en lecture ou en écriture
+Cache_Error Cache_Access(struct Cache *pcache, int irfile, const void *precord, int mode) {
 	// Etape 1 : initialisation des variables nécessaires 
 	char *buffer = (char *)precord; 
 	struct Cache_Block_Header block = NULL;
@@ -105,46 +152,14 @@ Cache_Error Cache_Read(struct Cache *pcache, int irfile, void *precord) {
 		// Si le bloc est déjà dans le cache, c'est bon; augmentation du hit rate
 		pcache->instrument.n_hits++;
 	}
-	// Etape 4 : on écrit dans le buffer et on synchronise si besoin
-	sprintf(buffer,block->data);
-	// On synchronise si besoin
-	pcache->instrument.n_reads++;
-	if(pcache->instrument.n_reads+pcache->instrument.n_writes % NSYNC == 0)
-		Cache_Sync(pcache);
-	Strategy_Read(pcache);
-	return CACHE_OK;
-}
-
-//! Écriture (à travers le cache).
-Cache_Error Cache_Write(struct Cache *pcache, int irfile, const void *precord) {
-	//fwrite(&irfile-recordsz, pcache->recordsz, pcache->nrecordsz, pcache->fp);
-	//pcache->headers[?]	=> Mettre à jour flag modifié à 0 ?
-
-	pcache->instrument.n_writes++;
-	if(pcache->instrument.n_reads+pcache->instrument.n_writes % NSYNC == 0)
-		Cache_Sync(pcache);
-	Strategy_Write(pcache);
-}
-
-//! Résultat de l'instrumentation.
-struct Cache_Instrument *Cache_Get_Instrument(struct Cache *pcache) {
-	struct *Cache_Instrument copie = malloc(sizeof(struct Cache_Instrument));
-	copie->n_reads = pcache->instrument->n_reads;
-	copie->n_writes = pcache->instrument->n_writes;
-	copie->n_hits = pcache->instrument->n_hits;
-	copie->n_syncs = pcache->instrument->n_syncs;
-	copie->n_deref = pcache->instrument->n_deref;
-	pcache->instrument = {0, 0, 0, 0, 0};
-	return copie;
-}
-
-//! Remplacement de contenu dans le fichier
-Cache_Error Cache_Replace_In_File(struct Cache *pcache, struct Cache_Block_Header block) {
-	// On commence par mettre le curseur dans le fichier à la position ibfile
-	if(fseek(pcache->fp, pcache->headers[i].ibfile * pcache->blocksz, SEEK_SET))
-		return CACHE_KO;
-	// On peut ensuite écrire dans le fichier à la position définie ci-dessus
-	if(fputs(block.data, pcache->fp)==EOF)
-		return CACHE_KO;
+	// Etape 4 : on agit selon la mode
+	if(mode==0) {
+		// Fonction read; on écrit dans le buffer 
+		sprintf(buffer,block->data);
+	}
+	else if(mode==1) {
+		// Fonction write; on écrit depuis le buffer 
+		sprintf(block->data,buffer);
+	}
 	return CACHE_OK;
 }
