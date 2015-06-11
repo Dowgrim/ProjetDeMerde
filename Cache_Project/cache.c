@@ -10,17 +10,19 @@ struct Cache *Cache_Create(const char *fic, unsigned nblocks, unsigned nrecords,
 	pcache->blocksz = nrecords*recordsz; 
 	pcache->nderef = nderef; 
 	pcache->pstrategy = Strategy_Create(pcache);
+	// On initialise les données utiles à l'instrumentation
 	struct Cache_Instrument cache_instrument = {0, 0, 0, 0, 0};
 	struct *Cache_Block_Header headers = malloc(sizeof(struct Cache_Block_Header)*(nrecords));
 	pcache->instrument cache_instrument;
 	pcache->headers = cache_header;
-	pcache->pfree = cache_header;
 	int i;
+	// On initialise les headers du cache
 	for(i = 0; i < nblocks; i++) {
-		headers[i].data = malloc(recordsz*nrecords);
-		headers[i].ibcache = i;
-		headers[i].flags = 0;
+		pcache->headers[i].data = malloc(recordsz*nrecords);
+		pcache->headers[i].ibcache = i;
+		pcache->headers[i].flags = 0;
 	}
+	pcache->pfree = pcache->headers[0];
 }
 
 //! Fermeture (destruction) du cache.
