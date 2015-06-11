@@ -4,11 +4,8 @@
 #include "low_cache.h"
 #include "time.h"
 
-void *Strategy_Create(struct Cache *pcache) 
-{
-    struct Cache_List *list = Cache_List_Create();
-    pcache->pstrategy = list;
-    return list;
+void *Strategy_Create(struct Cache *pcache) {
+    return Cache_List_Create();
 }
 
 void Strategy_Close(struct Cache *pcache)
@@ -31,9 +28,9 @@ struct Cache_Block_Header *Strategy_Replace_Block(struct Cache *pcache)
     	return pbh;
     }
 
-    /* Sinon on tire un numéro de bloc au hasard */
+    /* Sinon on prend le premier element de la liste*/
     pbh = Cache_List_Remove_First(pcache->pstrategy);
-    	Cache_List_Append(pcache->pstrategy,pbh);
+    Cache_List_Append(pcache->pstrategy,pbh);
     return pbh;
 }
 

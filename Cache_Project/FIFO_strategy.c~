@@ -4,11 +4,8 @@
 #include "low_cache.h"
 #include "time.h"
 
-void *Strategy_Create(struct Cache *pcache) 
-{
-    struct Cache_List *list = Cache_List_Create();
-    //pcache->pstrategy = list;
-    return list;
+void *Strategy_Create(struct Cache *pcache) {
+    return Cache_List_Create();
 }
 
 void Strategy_Close(struct Cache *pcache)
