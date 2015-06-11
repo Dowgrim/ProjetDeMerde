@@ -2,12 +2,11 @@
 #include "strategy.h"
 #include "low_cache.h"
 #include "time.h"
+#include "cache_list.h"
 
 void *Strategy_Create(struct Cache *pcache) 
 {
-    struct Cache_List *list = Cache_List_Create();
-    pcache->pstrategy = list;
-    return list;
+    return Cache_List_Create();
 }
 
 void Strategy_Close(struct Cache *pcache)
@@ -22,17 +21,15 @@ void Strategy_Invalidate(struct Cache *pcache)
 
 struct Cache_Block_Header *Strategy_Replace_Block(struct Cache *pcache) 
 {
-    struct Cache_Block_Header *pbh;
+    Cache_Block_Header *pbh;
 
-    
     if ((pbh = Get_Free_Block(pcache)) != NULL){
     	Cache_List_Append(pcache->pstrategy,pbh);
     	return pbh;
     }
 
-    
     pbh = Cache_List_Remove_First(pcache->pstrategy);
-    	Cache_List_Append(pcache->pstrategy,pbh);
+    Cache_List_Append(pcache->pstrategy,pbh);
     return pbh;
 }
 
