@@ -41,6 +41,7 @@ void Cache_List_Append(struct Cache_List *list, struct Cache_Block_Header *pbh){
 
 void Cache_List_Prepend(struct Cache_List *list, struct Cache_Block_Header *pbh){
 
+	struct Cache_List *pnew = malloc(sizeof(struct Cache_List));
 	Cache_List_Append(list, pbh);
 	list = pnew;
 }
