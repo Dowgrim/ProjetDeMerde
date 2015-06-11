@@ -40,7 +40,7 @@ DOXYGEN = doxygen
 
 # Exécutables avec diverses stratégies
 tst_Cache_% : tst_Cache.o %_strategy.o $(USRFILES)	
-	$(CC) -o $@ $^ #libCache.a
+	$(CC) -o $@ $^ libCache.a
 
 # Exécution des simulations (make simul) avec paramètres par défaut
 %_default.out : tst_Cache_%
