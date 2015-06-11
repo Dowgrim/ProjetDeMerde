@@ -76,14 +76,44 @@ Cache_Error Cache_Invalidate(struct Cache *pcache) {
 
 //! Lecture  (à travers le cache).
 Cache_Error Cache_Read(struct Cache *pcache, int irfile, void *precord) {
-	//fread(&pcache->data, pcache->recordsz, pcache->nrecordsz, pcache->fp);
-	//pcache->ibfile = irfile;	
+	// Etape 1 : initialisation des variables nécessaires 
+	char *buffer = (char *)precord; 
+	struct Cache_Block_Header block = NULL;
+	// Etape 2 : on va chercher si le bloc associé à irfile est déjà dans le cache
+	int index = irfile/pcache->nblocks, i, j = nblocks;
+	for(i=0; i<j, i++) {
+		// Si le bloc est celui qu'on chercher et qu'il n'a pas été libéré, on affecte block
+		if(pcache->headers[i].ibfile==index && (pcache->headers[i].flags & VALID == 1)) {
+			block = &(pcache->headers[i]);
+		}
+	}
+	// Etape 3 : on agit selon le cas, si le bloc est déjà dans le cache ou non
+	if(block==NULL) {
+		// Si le bloc n'est pas dans le cache, on utilise la stratégie de remplacement
+		block = Strategy_Replace_Block();
+		// Si ce bloc a été modifié, on enregistre les changements dans le fichier
+		if(block->flags & MODIF == 1) {
+
+		}
+		// On récupère le nouveau bloc dans le fichier
+
+		// On met à jour les valeurs
+	}
+	else {
+		// Si le bloc est déjà dans le cache, c'est bon; augmentation du hit rate
+		pcache->instrument.n_hits++;
+	}
+	// Etape 4 : on écrit dans le buffer et on met à jour ce qu'il faut
+
+	Strategy_Read(pcache);
 }
 
 //! Écriture (à travers le cache).
 Cache_Error Cache_Write(struct Cache *pcache, int irfile, const void *precord) {
 	//fwrite(&irfile-recordsz, pcache->recordsz, pcache->nrecordsz, pcache->fp);
 	//pcache->headers[?]	=> Mettre à jour flag modifié à 0 ?
+
+	Strategy_Write(pcache);
 }
 
 //! Résultat de l'instrumentation.

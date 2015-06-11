@@ -18,169 +18,96 @@ struct Cache_List *Cache_List_Create(){
 void Cache_List_Delete(struct Cache_List *list){
 
 	assert(list != NULL);
-    	struct Cache_List *pcurr = NULL;
-    	
-    	if ( pcurr != list->next ) {
-    		struct Cache_List *plast = pcurr->prev;
-      		struct Cache_List *pnext = NULL;
-      		
-      		for( ; pcurr != list->next; pcurr = pnext){
-		    pnext = pcurr->next;
-		    free(pcurr);
-		}
-		
-		plast->next = pcurr;
-		pcurr->prev = plast;
-	}	
+	struct Cache_List *pcurr = list;
+	
+	for(pcurr = list->next ; pcurr != list; pcurr = pcurr->next){
+		free(pcurr);		
+	}
+	free(list);
 }
 
 void Cache_List_Append(struct Cache_List *list, struct Cache_Block_Header *pbh){
-
-    struct Cache_List *pcurr = NULL;
-    struct Cache_List *pnew = NULL;
-
-    pnew = malloc(sizeof(struct Cache_List));
+    
+    struct Cache_List *pnew = malloc(sizeof(struct Cache_List));
+	struct Cache_List *pcurr = list;
+	
     pnew->pheader = pbh;
 
-    for (pcurr = list->next; pcurr != list->next;  pcurr = pcurr->next)
-    { }
-
     pnew->prev = pcurr->prev;
-    pcurr->prev->next = pnew;
+   	pcurr->prev->next = pnew;
     pcurr->prev = pnew;
     pnew->next = pcurr;
 }
 
 void Cache_List_Prepend(struct Cache_List *list, struct Cache_Block_Header *pbh){
 
-	struct Cache_List *pcurr = NULL;
-	struct Cache_List *pnew = NULL;
-
-	pnew = malloc(sizeof(struct Cache_List));
-	pnew->pheader = pbh;
-
-	pnew->prev = pcurr->prev;
-	pcurr->prev->next = pnew;
-	pcurr->prev = pnew;
-	pnew->next = pcurr;
+	Cache_List_Append(list, pbh);
+	list = pnew;
 }
 
 struct Cache_Block_Header *Cache_List_Remove_First(struct Cache_List *list){
 	
-	struct Cache_List *pcurr = NULL;
+	struct Cache_Block_Header *hpcurr = NULL;
 	
 	if(!Cache_List_Is_Empty(list)){
-		pcurr = Cache_List_Remove(list, list->pheader);
+		hpcurr = Cache_List_Remove(list, list->pheader);
 	}
 
-	return pcurr;
+	return hpcurr;
 }
 
 struct Cache_Block_Header *Cache_List_Remove_Last(struct Cache_List *list){
 
-	struct Cache_List *pcurr = NULL;
-      	
-      	for (pcurr = list->next; pcurr != list->next;  pcurr = pcurr->next)
-    { }
-	struct Cache_List *plast = pcurr->prev;
-	free(pcurr);
+	struct Cache_Block_Header *pcurr = NULL;
+    
+	if(!Cache_List_Is_Empty(list)){
+		hpcurr = Cache_List_Remove(list, list->prev->pheader);
+	}
 	
-	plast->next = pcurr;
-	pcurr->prev = plast;
-	
-	return pcurr->pheader;
+	return hpcurr;
 }
 
 struct Cache_Block_Header *Cache_List_Remove(struct Cache_List *list, struct Cache_Block_Header *pbh){
 
 	struct Cache_List *pcurr = NULL;
+	struct Cache_Block_Header *hpreturn = NULL;
       	
-      	for (pcurr = list->next; pcurr != list->next;  pcurr = pcurr->next){
-    		if( pcurr->pheader == pbh ){
-    		
-    			struct Cache_List *plast = pcurr->prev;
+  	for (pcurr = list->next; pcurr != list;  pcurr = pcurr->next){
+		if( pcurr->pheader == pbh ){
+			pcurr->prev->next = pcurr->next;
+			pcurr->next->prev = pcurr->prev;
 			free(pcurr);
-			plast->next = pcurr;
-			pcurr->prev = plast;
-	    	}			
-	}	
-	return pcurr->pheader;
+			hpreturn = pbh;
+    	}			
+	}
+	return hpreturn;
 }
 
 void Cache_List_Clear(struct Cache_List *list){
 
 	struct Cache_List *pcurr = NULL;
+	struct Cache_List *pprec = NULL;
 	
-	for (pcurr = list->next; pcurr != list->next;  pcurr = pcurr->next){
-		struct Cache_List *plast = pcurr->prev;
-			free(pcurr);
-			plast->next = pcurr;
-			pcurr->prev = plast;
+	for (pprec = list, pcurr = list->next; pcurr != list; pprec = pcurr, pcurr = pcurr->next){
+		free(pprec);
 	}			
+	list->next = list;
+	list->prev = list;
 }
 
 bool Cache_List_Is_Empty(struct Cache_List *list){
-	bool res = false;
-	
-	if ( list->next == NULL ){
-		res = true;
-	}
-	
-	return res;
+
+	return list->next == list;
 }
 
 void Cache_List_Move_To_End(struct Cache_List *list,struct Cache_Block_Header *pbh){
 
-	struct Cache_List *pcurr = NULL;
-	
-	for (pcurr = list->next; pcurr != list->next;  pcurr = pcurr->next){
-    		if( pcurr->pheader == pbh ){
-    		
-    			struct Cache_List *plast = pcurr->prev;
-			free(pcurr);
-			plast->next = pcurr;
-			pcurr->prev = plast;
-	    	}			
-	}
-	
-	struct Cache_List *pnew = NULL;
-
-	pnew = malloc(sizeof(struct Cache_List));    
-	pnew->pheader = pbh;
-
-	//on ajoute l'element	
-	pnew->prev = pcurr->prev;
-	pcurr->prev->next = pnew;
-	pcurr->prev = pnew;
-	pnew->next = pcurr;
+	Cache_List_Append(list, Cache_List_Remove(list, pbh));
 }
 
 void Cache_List_Move_To_Begin(struct Cache_List *list,struct Cache_Block_Header *pbh){
 	
-	struct Cache_List *pcurr = NULL;
-	
-	for (pcurr = list->next; pcurr != list->next;  pcurr = pcurr->next){
-    		if( pcurr->pheader == pbh ){
-    		
-    			struct Cache_List *plast = pcurr->prev;
-			free(pcurr);
-			plast->next = pcurr;
-			pcurr->prev = plast;
-	    	}			
-	}
-	
-	struct Cache_List *pnew = NULL;
-	pcurr = NULL;
-	pcurr = list->next;
-	
-	pnew = malloc(sizeof(struct Cache_List));    
-	pnew->pheader = pbh;
-
-	//on ajoute l'element	
-	pnew->prev = pcurr->prev;
-	pcurr->prev->next = pnew;
-	pcurr->prev = pnew;
-	pnew->next = pcurr;
+	Cache_List_Prepend(list, Cache_List_Remove(list, pbh));
 }
 
 
