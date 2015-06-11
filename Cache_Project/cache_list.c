@@ -1,7 +1,6 @@
 #include "cache_list.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <assert.h>
 
 
