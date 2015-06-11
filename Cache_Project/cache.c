@@ -108,7 +108,7 @@ struct Cache_Instrument *Cache_Get_Instrument(struct Cache *pcache) {
 //! Remplacement de contenu dans le fichier
 Cache_Error Cache_Replace_In_File(struct Cache *pcache, struct Cache_Block_Header block) {
 	// On commence par mettre le curseur dans le fichier à la position ibfile
-	if(fseek(pcache->fp, pcache->headers[i].ibfile * pcache->blocksz, SEEK_SET))
+	if(fseek(pcache->fp, DADDR(pcache, block->ibfile), SEEK_SET))
 		return CACHE_KO;
 	// On peut ensuite écrire dans le fichier à la position définie ci-dessus
 	if(fputs(block.data, pcache->fp)==EOF)
@@ -138,7 +138,7 @@ Cache_Error Cache_Access(struct Cache *pcache, int irfile, const void *precord, 
 			Cache_Replace_In_File(&pcache, block);
 		// On récupère le nouveau bloc dans le fichier
 		index = irfile;
-		if(fseek(pcache->fp, pcache->headers[i].ibfile * pcache->blocksz, SEEK_SET))
+		if(fseek(pcache->fp, DADDR(pcache, index), SEEK_SET))
 			return CACHE_KO;
 		if(fgets(block->data,pcache->blocksz,pcache->fp)==NULL)
 			return CACHE_KO;
@@ -155,11 +155,11 @@ Cache_Error Cache_Access(struct Cache *pcache, int irfile, const void *precord, 
 	// Etape 4 : on agit selon la mode
 	if(mode==0) {
 		// Fonction read; on écrit dans le buffer 
-		sprintf(buffer,block->data);
+		sprintf(buffer,ADDR(pcache, irfile, block));
 	}
 	else if(mode==1) {
 		// Fonction write; on écrit depuis le buffer 
-		sprintf(block->data,buffer);
+		sprintf(ADDR(pcache, irfile, block),buffer);
 	}
 	return CACHE_OK;
 }
