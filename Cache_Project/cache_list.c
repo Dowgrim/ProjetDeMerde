@@ -59,7 +59,7 @@ struct Cache_Block_Header *Cache_List_Remove_First(struct Cache_List *list){
 
 struct Cache_Block_Header *Cache_List_Remove_Last(struct Cache_List *list){
 
-	struct Cache_Block_Header *pcurr = NULL;
+	struct Cache_Block_Header *hpcurr = NULL;
     
 	if(!Cache_List_Is_Empty(list)){
 		hpcurr = Cache_List_Remove(list, list->prev->pheader);
@@ -114,6 +114,7 @@ void Cache_List_Move_To_Begin(struct Cache_List *list,struct Cache_Block_Header 
 
 int main()
 {
+	struct Cache_List *d0=Cache_List_Create();
 	
 	return 0;
 }
