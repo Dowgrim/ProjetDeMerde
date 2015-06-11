@@ -109,13 +109,3 @@ void Cache_List_Move_To_Begin(struct Cache_List *list,struct Cache_Block_Header 
 	
 	Cache_List_Prepend(list, Cache_List_Remove(list, pbh));
 }
-
-/*int main(){
-	
-	struct Cache_List *d0=Cache_List_Create();
-	Cache_List_Delete(d0);
-	struct Cache_List *d1=Cache_List_Create();
-	struct Cache_Block_Header *b1 = malloc (sizeof(struct Cache_Block_Header));
-	Cache_List_Append(d1,&b1);
-	return 0;
-}*/

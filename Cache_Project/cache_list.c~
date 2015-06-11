@@ -17,7 +17,6 @@ struct Cache_List *Cache_List_Create(){
 
 void Cache_List_Delete(struct Cache_List *list){
 
-	assert(list != NULL);
 	struct Cache_List *pcurr = list;
 	
 	for(pcurr = list->next ; pcurr != list; pcurr = pcurr->next){
@@ -48,7 +47,7 @@ void Cache_List_Prepend(struct Cache_List *list, struct Cache_Block_Header *pbh)
 
 struct Cache_Block_Header *Cache_List_Remove_First(struct Cache_List *list){
 	
-	struct Cache_Block_Header *hpcurr = NULL;
+	Cache_Block_Header *hpcurr = NULL;
 	
 	if(!Cache_List_Is_Empty(list)){
 		hpcurr = Cache_List_Remove(list, list->pheader);
@@ -59,7 +58,7 @@ struct Cache_Block_Header *Cache_List_Remove_First(struct Cache_List *list){
 
 struct Cache_Block_Header *Cache_List_Remove_Last(struct Cache_List *list){
 
-	struct Cache_Block_Header *hpcurr = NULL;
+	Cache_Block_Header *hpcurr = NULL;
     
 	if(!Cache_List_Is_Empty(list)){
 		hpcurr = Cache_List_Remove(list, list->prev->pheader);
@@ -71,7 +70,7 @@ struct Cache_Block_Header *Cache_List_Remove_Last(struct Cache_List *list){
 struct Cache_Block_Header *Cache_List_Remove(struct Cache_List *list, struct Cache_Block_Header *pbh){
 
 	struct Cache_List *pcurr = NULL;
-	struct Cache_Block_Header *hpreturn = NULL;
+	Cache_Block_Header *hpreturn = NULL;
       	
   	for (pcurr = list->next; pcurr != list;  pcurr = pcurr->next){
 		if( pcurr->pheader == pbh ){
