@@ -47,12 +47,7 @@ Cache_Error Cache_Sync(struct Cache *pcache) {
 		unsigned int f = pcache->headers[i].flags;
 		if(f & MODIF) {
 			// Le flag M est modifié, alors on écrit dans le fichier les modif
-			// On commence par mettre le curseur dans le fichier à la position ibfile
-			if(fseek(pcache->fp, pcache->headers[i].ibfile * pcache->blocksz, SEEK_SET))
-				return CACHE_KO;
-			// On peut ensuite écrire dans le fichier à la position définie ci-dessus
-			if(fputs(pcache->headers[i].data, pcache->fp)==EOF)
-				return CACHE_KO;
+			Cache_Replace_In_File(&pcache, pcache->headers[i]);
 			// Puis on met le flag M à 0
 			f &= ~MODIF;
 		}
@@ -92,20 +87,32 @@ Cache_Error Cache_Read(struct Cache *pcache, int irfile, void *precord) {
 		// Si le bloc n'est pas dans le cache, on utilise la stratégie de remplacement
 		block = Strategy_Replace_Block();
 		// Si ce bloc a été modifié, on enregistre les changements dans le fichier
-		if(block->flags & MODIF == 1) {
-
-		}
+		if(block->flags & MODIF == 1) 
+			Cache_Replace_In_File(&pcache, block);
 		// On récupère le nouveau bloc dans le fichier
-
-		// On met à jour les valeurs
+		index = irfile;
+		if(fseek(pcache->fp, pcache->headers[i].ibfile * pcache->blocksz, SEEK_SET))
+			return CACHE_KO;
+		if(fgets(block->data,pcache->blocksz,pcache->fp)==NULL)
+			return CACHE_KO;
+		// Mise à jour de l'index du fichier correspond à ce qu'on met dans le bloc
+		block->ibfile = index;
+		// Le bloc est marqué comme non libre et non modifié
+		block->flags |= VALID;
+		block->flags &= ~MODIF;
 	}
 	else {
 		// Si le bloc est déjà dans le cache, c'est bon; augmentation du hit rate
 		pcache->instrument.n_hits++;
 	}
-	// Etape 4 : on écrit dans le buffer et on met à jour ce qu'il faut
-
+	// Etape 4 : on écrit dans le buffer et on synchronise si besoin
+	sprintf(buffer,block->data);
+	// On synchronise si besoin
+	pcache->instrument.n_reads++;
+	if(pcache->instrument.n_reads+pcache->instrument.n_writes % NSYNC == 0)
+		Cache_Sync(pcache);
 	Strategy_Read(pcache);
+	return CACHE_OK;
 }
 
 //! Écriture (à travers le cache).
@@ -113,6 +120,9 @@ Cache_Error Cache_Write(struct Cache *pcache, int irfile, const void *precord) {
 	//fwrite(&irfile-recordsz, pcache->recordsz, pcache->nrecordsz, pcache->fp);
 	//pcache->headers[?]	=> Mettre à jour flag modifié à 0 ?
 
+	pcache->instrument.n_writes++;
+	if(pcache->instrument.n_reads+pcache->instrument.n_writes % NSYNC == 0)
+		Cache_Sync(pcache);
 	Strategy_Write(pcache);
 }
 
@@ -126,4 +136,15 @@ struct Cache_Instrument *Cache_Get_Instrument(struct Cache *pcache) {
 	copie->n_deref = pcache->instrument->n_deref;
 	pcache->instrument = {0, 0, 0, 0, 0};
 	return copie;
+}
+
+//! Remplacement de contenu dans le fichier
+Cache_Error Cache_Replace_In_File(struct Cache *pcache, struct Cache_Block_Header block) {
+	// On commence par mettre le curseur dans le fichier à la position ibfile
+	if(fseek(pcache->fp, pcache->headers[i].ibfile * pcache->blocksz, SEEK_SET))
+		return CACHE_KO;
+	// On peut ensuite écrire dans le fichier à la position définie ci-dessus
+	if(fputs(block.data, pcache->fp)==EOF)
+		return CACHE_KO;
+	return CACHE_OK;
 }
