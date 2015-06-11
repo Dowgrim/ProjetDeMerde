@@ -13,7 +13,7 @@ struct Cache *Cache_Create(const char *fic, unsigned nblocks, unsigned nrecords,
 	// On initialise les données utiles à l'instrumentation
 	struct Cache_Instrument cache_instrument = {0, 0, 0, 0, 0};
 	struct *Cache_Block_Header headers = malloc(sizeof(struct Cache_Block_Header)*(nrecords));
-	pcache->instrument cache_instrument;
+	pcache->instrument = cache_instrument;
 	pcache->headers = cache_header;
 	int i;
 	// On initialise les headers du cache
@@ -27,8 +27,10 @@ struct Cache *Cache_Create(const char *fic, unsigned nblocks, unsigned nrecords,
 
 //! Fermeture (destruction) du cache.
 Cache_Error Cache_Close(struct Cache *pcache) {
+	// On synchronise le cache et on ferme le fichier
 	if(Cache_Sync(pcache)==CACHE_KO || fclose(pcache->fp))
 		return CACHE_KO;
+	// Libération de toute la mémoire alloué lors de la création du cache
 	Strategy_Close(pcache);
 	for(i = 0 ; i < pcache->nblocks ; i++){
 		free(pcache->headers[i].data);
@@ -62,7 +64,9 @@ Cache_Error Cache_Sync(struct Cache *pcache) {
 //! Invalidation du cache.
 Cache_Error Cache_Invalidate(struct Cache *pcache) {
 	int i=0, j=pcache->nblocks;
+	// Tous les blocks deviennent libre, pfree est donc le premier bloc
 	pcache->pfree = &(pcache->headers[0]);
+	// On marque tous les blocs comme valides
 	for(i = 0; i < j; i++) {
 		pcache->headers[i].flags &= ~VALID;
 	}
@@ -84,7 +88,7 @@ Cache_Error Cache_Write(struct Cache *pcache, int irfile, const void *precord) {
 
 //! Résultat de l'instrumentation.
 struct Cache_Instrument *Cache_Get_Instrument(struct Cache *pcache) {
-	struct *Cache_Instrument copie;
+	struct *Cache_Instrument copie = malloc(sizeof(struct Cache_Instrument));
 	copie->n_reads = pcache->instrument->n_reads;
 	copie->n_writes = pcache->instrument->n_writes;
 	copie->n_hits = pcache->instrument->n_hits;
