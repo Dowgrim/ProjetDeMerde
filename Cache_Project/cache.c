@@ -22,7 +22,7 @@ struct Cache *Cache_Create(const char *fic, unsigned nblocks, unsigned nrecords,
 		pcache->headers[i].ibcache = i;
 		pcache->headers[i].flags = 0;
 	}
-	pcache->pfree = pcache->headers[0];
+	pcache->pfree = &(pcache->headers[0]);
 }
 
 //! Fermeture (destruction) du cache.
@@ -62,9 +62,12 @@ Cache_Error Cache_Sync(struct Cache *pcache) {
 //! Invalidation du cache.
 Cache_Error Cache_Invalidate(struct Cache *pcache) {
 	int i=0, j=pcache->nblocks;
+	pcache->pfree = &(pcache->headers[0]);
 	for(i = 0; i < j; i++) {
-		pcache->headers[i].flags = 0;
+		pcache->headers[i].flags &= ~VALID;
 	}
+	Strategy_Invalidate(pcache);
+	return CACHE_OK;
 }
 
 //! Lecture  (à travers le cache).
