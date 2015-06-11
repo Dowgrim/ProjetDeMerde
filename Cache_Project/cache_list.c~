@@ -1,7 +1,6 @@
 #include "cache_list.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <assert.h>
 
 
@@ -111,10 +110,9 @@ void Cache_List_Move_To_Begin(struct Cache_List *list,struct Cache_Block_Header 
 	Cache_List_Prepend(list, Cache_List_Remove(list, pbh));
 }
 
-
-int main()
-{
-	struct Cache_List *d0=Cache_List_Create();
+int main(){
 	
+	struct Cache_List *d0=Cache_List_Create();
+	Cache_List_Delete(d0);
 	return 0;
 }
