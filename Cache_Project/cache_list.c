@@ -7,6 +7,7 @@
 /*! Création d'une liste de blocs */
 struct Cache_List *Cache_List_Create(){
 	
+	//assigner la mémoire
 	struct Cache_List *racine = malloc ( sizeof *racine );
 	if ( racine != NULL ){
 		racine->prev = racine;
@@ -20,6 +21,7 @@ void Cache_List_Delete(struct Cache_List *list){
 
 	struct Cache_List *pcurr = list;
 	
+	//Parcourir la liste
 	for(pcurr = list->next ; pcurr != list; pcurr = pcurr->next){
 		free(pcurr);		
 	}
@@ -29,6 +31,7 @@ void Cache_List_Delete(struct Cache_List *list){
 /*! Insertion d'un élément à la fin */
 void Cache_List_Append(struct Cache_List *list, struct Cache_Block_Header *pbh){
     
+    //augmenter la taille de la mémoire allouée
     struct Cache_List *pnew = malloc(sizeof(struct Cache_List));
 	struct Cache_List *pcurr = list;
 	
@@ -43,6 +46,7 @@ void Cache_List_Append(struct Cache_List *list, struct Cache_Block_Header *pbh){
 /*! Insertion d'un élément au début*/
 void Cache_List_Prepend(struct Cache_List *list, struct Cache_Block_Header *pbh){
 
+	//augmenter la taille de la mémoire allouée
 	struct Cache_List *pnew = malloc(sizeof(struct Cache_List));
 	Cache_List_Append(list, pbh);
 	list = pnew;
@@ -53,6 +57,7 @@ struct Cache_Block_Header *Cache_List_Remove_First(struct Cache_List *list){
 	
 	Cache_Block_Header *hpcurr = NULL;
 	
+	//On vérifie si la liste n'est pas vide
 	if(!Cache_List_Is_Empty(list)){
 		hpcurr = Cache_List_Remove(list, list->pheader);
 	}
@@ -65,6 +70,7 @@ struct Cache_Block_Header *Cache_List_Remove_Last(struct Cache_List *list){
 
 	Cache_Block_Header *hpcurr = NULL;
     
+    //On vérifie si la liste n'est pas vide
 	if(!Cache_List_Is_Empty(list)){
 		hpcurr = Cache_List_Remove(list, list->prev->pheader);
 	}
@@ -77,7 +83,8 @@ struct Cache_Block_Header *Cache_List_Remove(struct Cache_List *list, struct Cac
 
 	struct Cache_List *pcurr = NULL;
 	Cache_Block_Header *hpreturn = NULL;
-      	
+      
+    //Parcourir la liste	
   	for (pcurr = list->next; pcurr != list;  pcurr = pcurr->next){
 		if( pcurr->pheader == pbh ){
 			pcurr->prev->next = pcurr->next;
@@ -95,6 +102,7 @@ void Cache_List_Clear(struct Cache_List *list){
 	struct Cache_List *pcurr = NULL;
 	struct Cache_List *pprec = NULL;
 	
+	//Parcourir la liste
 	for (pprec = list, pcurr = list->next; pcurr != list; pprec = pcurr, pcurr = pcurr->next){
 		free(pprec);
 	}			

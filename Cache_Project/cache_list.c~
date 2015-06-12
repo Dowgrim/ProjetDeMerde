@@ -4,9 +4,10 @@
 #include <assert.h>
 #include "low_cache.h"
 
-
+/*! Création d'une liste de blocs */
 struct Cache_List *Cache_List_Create(){
 	
+	//assigner la mémoire
 	struct Cache_List *racine = malloc ( sizeof *racine );
 	if ( racine != NULL ){
 		racine->prev = racine;
@@ -15,16 +16,19 @@ struct Cache_List *Cache_List_Create(){
 	return racine;
 }
 
+/*! Destruction d'une liste de blocs */
 void Cache_List_Delete(struct Cache_List *list){
 
 	struct Cache_List *pcurr = list;
 	
+	//Parcourir la liste
 	for(pcurr = list->next ; pcurr != list; pcurr = pcurr->next){
 		free(pcurr);		
 	}
 	free(list);
 }
 
+/*! Insertion d'un élément à la fin */
 void Cache_List_Append(struct Cache_List *list, struct Cache_Block_Header *pbh){
     
     struct Cache_List *pnew = malloc(sizeof(struct Cache_List));
@@ -38,6 +42,7 @@ void Cache_List_Append(struct Cache_List *list, struct Cache_Block_Header *pbh){
     pnew->next = pcurr;
 }
 
+/*! Insertion d'un élément au début*/
 void Cache_List_Prepend(struct Cache_List *list, struct Cache_Block_Header *pbh){
 
 	struct Cache_List *pnew = malloc(sizeof(struct Cache_List));
@@ -45,6 +50,7 @@ void Cache_List_Prepend(struct Cache_List *list, struct Cache_Block_Header *pbh)
 	list = pnew;
 }
 
+/*! Retrait du premier élément */
 struct Cache_Block_Header *Cache_List_Remove_First(struct Cache_List *list){
 	
 	Cache_Block_Header *hpcurr = NULL;
@@ -56,6 +62,7 @@ struct Cache_Block_Header *Cache_List_Remove_First(struct Cache_List *list){
 	return hpcurr;
 }
 
+/*! Retrait du dernier élément */
 struct Cache_Block_Header *Cache_List_Remove_Last(struct Cache_List *list){
 
 	Cache_Block_Header *hpcurr = NULL;
@@ -67,6 +74,7 @@ struct Cache_Block_Header *Cache_List_Remove_Last(struct Cache_List *list){
 	return hpcurr;
 }
 
+/*! Retrait d'un élément quelconque */
 struct Cache_Block_Header *Cache_List_Remove(struct Cache_List *list, struct Cache_Block_Header *pbh){
 
 	struct Cache_List *pcurr = NULL;
@@ -83,6 +91,7 @@ struct Cache_Block_Header *Cache_List_Remove(struct Cache_List *list, struct Cac
 	return hpreturn;
 }
 
+/*! Remise en l'état de liste vide */
 void Cache_List_Clear(struct Cache_List *list){
 
 	struct Cache_List *pcurr = NULL;
@@ -95,16 +104,19 @@ void Cache_List_Clear(struct Cache_List *list){
 	list->prev = list;
 }
 
+/*! Test de liste vide */
 bool Cache_List_Is_Empty(struct Cache_List *list){
 
 	return list->next == list;
 }
 
+/*! Transférer un élément à la fin */
 void Cache_List_Move_To_End(struct Cache_List *list,struct Cache_Block_Header *pbh){
 
 	Cache_List_Append(list, Cache_List_Remove(list, pbh));
 }
 
+/*! Transférer un élément  au début */
 void Cache_List_Move_To_Begin(struct Cache_List *list,struct Cache_Block_Header *pbh){
 	
 	Cache_List_Prepend(list, Cache_List_Remove(list, pbh));
