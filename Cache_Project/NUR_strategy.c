@@ -11,7 +11,7 @@ void deref(struct Cache *pcache)
     for (int i = 0; i < pcache->nblocks; i++)
         pcache->headers[i].flags &= ~REFER;
     // ràz du compteur
-    pcache->pstrategy = 0;
+    *((int*)pcache->pstrategy) = 0;
     // on incrémente le compteur
     ++pcache->instrument.n_deref;
 }
@@ -24,6 +24,9 @@ int valuate_rm(struct Cache_Block_Header *bloc) {
 
 void *Strategy_Create(struct Cache *pcache) 
 {
+	int *i = malloc(sizeof(int));
+	*i = 0;
+    return i;
 }
 
 void Strategy_Close(struct Cache *pcache)
@@ -65,7 +68,7 @@ void Strategy_Read(struct Cache *pcache, struct Cache_Block_Header *pbh)
 {
     // réinitialisation du compteur si on dépasse la limite de nderef
     // (on a fait ndref accès)
-    if (++pcache->pstrategy >= pcache->nderef)
+    if (++(*((int*)pcache->pstrategy)) >= pcache->nderef)
         deref(pcache);
 
     // on met le bit REFER à 1 (on a accédé au bloc)
@@ -74,7 +77,7 @@ void Strategy_Read(struct Cache *pcache, struct Cache_Block_Header *pbh)
 
 void Strategy_Write(struct Cache *pcache, struct Cache_Block_Header *pbh)
 {
-    if ((++pcache->pstrategy) >= pcache->nderef)
+    if (++(*((int*)pcache->pstrategy)) >= pcache->nderef)
         deref(pcache);
 
     pbh->flags |= REFER;
